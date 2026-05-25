@@ -19,10 +19,10 @@ mongoose
     process.exit(1);
   });
 
-// Routes go here
-// app.use('/api/auth', require('./routes/auth'));
-// app.use('/api/users', require('./routes/users'));
-// app.use('/api/posts', require('./routes/posts'));  // Task 2
+
+app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/users', require('./routes/user.routes'));
+app.use('/api/posts', require('./routes/posts.routes'));  // Task 2
 
 
 app.listen(process.env.PORT || 5000, () =>
