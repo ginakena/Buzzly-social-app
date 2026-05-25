@@ -13,7 +13,7 @@ const validate = (req, res, next) => {
   next();
 };
 
-// ── Auth rules ─────────────────────────────────────────────────────────────
+//  Auth rules 
 
 const registerRules = [
   body('username')
@@ -41,8 +41,7 @@ const loginRules = [
     .notEmpty().withMessage('Password is required.'),
 ];
 
-// ── Post rules ──────────────────────────────────────────────────────────────
-
+//  Post rules
 const createPostRules = [
   body('content')
     .trim()
@@ -60,7 +59,7 @@ const commentRules = [
     .isLength({ max: 500 }).withMessage('Comment cannot exceed 500 characters.'),
 ];
 
-// ── Profile rules ───────────────────────────────────────────────────────────
+//  Profile rules 
 
 const updateProfileRules = [
   body('username')
