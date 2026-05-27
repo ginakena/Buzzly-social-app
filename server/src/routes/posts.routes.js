@@ -12,6 +12,7 @@ const {
   addComment,
   deleteComment,
 } = require('../controllers/post.controller');
+const upload = require('../middleware/upload');
 
 const { protect } = require('../middleware/auth');
 const { createPostRules, commentRules, validate } = require('../middleware/validate');
@@ -23,13 +24,13 @@ router.get('/feed', protect, getFeed);
 router.get('/explore', getExplorePosts);
 
 // POST /api/posts          (protected)
-router.post('/', protect, createPostRules, validate, createPost);
+router.post('/', protect, upload.single('image'), createPostRules, validate, createPost);
 
 // GET /api/posts/:id
 router.get('/:id', getPost);
 
 // PATCH /api/posts/:id     (post author only)
-router.patch('/:id', protect, createPostRules, validate, updatePost);
+router.patch('/:id', protect, upload.single('image'), createPostRules, validate, updatePost);
 
 // DELETE /api/posts/:id    (post author only)
 router.delete('/:id', protect, deletePost);
