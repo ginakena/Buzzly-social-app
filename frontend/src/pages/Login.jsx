@@ -45,7 +45,7 @@ const Login = () => {
           {/* Header */}
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Typography variant="h5" fontWeight={700} color="primary">
-              SocialApp
+              Welcome to Buzzly!
             </Typography>
             <Typography variant="body2" color="text.secondary" mt={0.5}>
               Sign in to your account
