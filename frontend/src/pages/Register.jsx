@@ -96,7 +96,7 @@ const Register = () => {
                 ),
               }}
             />
-//confirm password
+
               <TextField
               label="confirm password"
               name='confirm password'
