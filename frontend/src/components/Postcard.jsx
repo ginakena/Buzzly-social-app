@@ -10,7 +10,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { formatDistanceToNow } from 'date-fns';
-import api from '../api';
+import api from '../api/Api';
 import { useAuth } from '../context/authContext';
 
 const PostCard = ({ post, onDelete }) => {
