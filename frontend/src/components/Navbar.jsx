@@ -38,7 +38,7 @@ const Navbar = () => {
           to="/feed"
           sx={{ fontWeight: 700, textDecoration: 'none', color: 'primary.main', flexShrink: 0 }}
         >
-          SocialApp
+          Buzzly
         </Typography>
 
         {/* Search bar */}

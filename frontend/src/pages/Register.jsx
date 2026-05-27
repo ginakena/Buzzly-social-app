@@ -45,7 +45,7 @@ const Register = () => {
           {/* Header */}
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Typography variant="h5" fontWeight={700} color="primary">
-              SocialApp
+              Welcome to Buzzly!
             </Typography>
             <Typography variant="body2" color="text.secondary" mt={0.5}>
               Create your account
@@ -96,7 +96,18 @@ const Register = () => {
                 ),
               }}
             />
-
+//confirm password
+              <TextField
+              label="confirm password"
+              name='confirm password'
+              type={showPassword ? 'text' : 'password'}
+              value={form['confirm password']}
+              onChange={handleChange}
+              required
+              fullWidth
+              size="small"
+              inputProps={{ minLength: 6 }}
+            />
             <Button
               type="submit"
               variant="contained"
