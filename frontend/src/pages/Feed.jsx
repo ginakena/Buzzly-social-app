@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box, TextField, Button, Card, CardContent, Typography,
   CircularProgress, Alert, Avatar, Divider,
@@ -19,7 +19,9 @@ const Feed = () => {
 
   // Create post state
   const [content, setContent] = useState('');
-  const [image, setImage] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const fileInputRef = useRef(null);
   const [showImageInput, setShowImageInput] = useState(false);
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState('');
@@ -48,17 +50,38 @@ const Feed = () => {
     fetchFeed(nextCursor);
   };
 
+    const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setShowImageInput(true);
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview('');
+    setShowImageInput(false);
+    fileInputRef.current.value = '';
+  };
+
   const handleCreatePost = async () => {
     if (!content.trim()) return;
     setPosting(true);
     setPostError('');
     try {
-      const body = { content };
-      if (image.trim()) body.image = image.trim();
-      const { data } = await api.post('/posts', body);
+    const formData = new FormData();
+      formData.append('content', content);
+      if (imageFile) formData.append('image', imageFile);
+
+      const { data } = await api.post('/posts', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
       setPosts((prev) => [data.post, ...prev]);
       setContent('');
-      setImage('');
+      setImageFile(null);
+      setImagePreview('');
       setShowImageInput(false);
     } catch (err) {
       setPostError(err.response?.data?.message || 'Failed to create post.');
@@ -66,6 +89,8 @@ const Feed = () => {
       setPosting(false);
     }
   };
+
+  
 
   const handleDeletePost = (postId) => {
     setPosts((prev) => prev.filter((p) => p._id !== postId));
@@ -98,8 +123,8 @@ const Feed = () => {
                 <TextField
                   fullWidth
                   placeholder="Image URL (optional)"
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
+                  value={imagePreview}
+                  onChange={(e) => setImagePreview(e.target.value)}
                   size="small"
                   sx={{ mt: 1, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                 />
