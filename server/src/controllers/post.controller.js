@@ -4,7 +4,9 @@ const User = require('../models/User');
 // POST /api/posts
 const createPost = async (req, res, next) => {
   try {
-    const { content, image } = req.body;
+    const { content } = req.body;
+    const image = req.file ? req.file.path : '';
+
 
     const post = await Post.create({
       author: req.user._id,

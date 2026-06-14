@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box, TextField, Button, Card, CardContent, Typography,
-  CircularProgress, Alert, Avatar, Divider,
+  CircularProgress, Alert, Avatar, Divider, IconButton,
 } from '@mui/material';
 import ImageIcon from '@mui/icons-material/Image';
+import CloseIcon from '@mui/icons-material/Close';
 import api from '../api/Api';
 import { useAuth } from '../context/authContext';
 import PostCard from '../components/Postcard';
@@ -21,17 +22,15 @@ const Feed = () => {
   const [content, setContent] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
-  const fileInputRef = useRef(null);
-  const [showImageInput, setShowImageInput] = useState(false);
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState('');
+  const fileInputRef = useRef(null);
 
   const fetchFeed = useCallback(async (cursor = null) => {
     try {
       const params = { limit: 10 };
       if (cursor) params.cursor = cursor;
       const { data } = await api.get('/posts/feed', { params });
-
       setPosts((prev) => cursor ? [...prev, ...data.posts] : data.posts);
       setHasMore(data.hasMore);
       setNextCursor(data.nextCursor);
@@ -50,27 +49,28 @@ const Feed = () => {
     fetchFeed(nextCursor);
   };
 
-    const handleImageChange = (e) => {
+  // When user picks a file — show preview immediately, no upload yet
+  const handleImagePick = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
-    setShowImageInput(true);
   };
 
+  // Remove selected image
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview('');
-    setShowImageInput(false);
-    fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  // Submit post — sends as FormData so backend receives the actual file
   const handleCreatePost = async () => {
     if (!content.trim()) return;
     setPosting(true);
     setPostError('');
     try {
-    const formData = new FormData();
+      const formData = new FormData();
       formData.append('content', content);
       if (imageFile) formData.append('image', imageFile);
 
@@ -82,15 +82,13 @@ const Feed = () => {
       setContent('');
       setImageFile(null);
       setImagePreview('');
-      setShowImageInput(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (err) {
       setPostError(err.response?.data?.message || 'Failed to create post.');
     } finally {
       setPosting(false);
     }
   };
-
-  
 
   const handleDeletePost = (postId) => {
     setPosts((prev) => prev.filter((p) => p._id !== postId));
@@ -106,6 +104,7 @@ const Feed = () => {
             <Avatar src={user?.avatar} sx={{ bgcolor: 'primary.main', mt: 0.5 }}>
               {user?.username?.[0]?.toUpperCase()}
             </Avatar>
+
             <Box sx={{ flex: 1 }}>
               <TextField
                 multiline
@@ -119,26 +118,50 @@ const Feed = () => {
                 size="small"
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
               />
-              {showImageInput && (
-                <TextField
-                  fullWidth
-                  placeholder="Image URL (optional)"
-                  value={imagePreview}
-                  onChange={(e) => setImagePreview(e.target.value)}
-                  size="small"
-                  sx={{ mt: 1, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-                />
+
+              {/* Image preview with remove button */}
+              {imagePreview && (
+                <Box sx={{ position: 'relative', mt: 1, borderRadius: 2, overflow: 'hidden' }}>
+                  <img
+                    src={imagePreview}
+                    alt="preview"
+                    style={{ width: '100%', maxHeight: 280, objectFit: 'cover', display: 'block' }}
+                  />
+                  <IconButton
+                    size="small"
+                    onClick={handleRemoveImage}
+                    sx={{
+                      position: 'absolute', top: 6, right: 6,
+                      bgcolor: 'rgba(0,0,0,0.55)', color: 'white',
+                      '&:hover': { bgcolor: 'rgba(0,0,0,0.75)' },
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Box>
               )}
+
               {postError && <Alert severity="error" sx={{ mt: 1 }}>{postError}</Alert>}
+
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                {/* Hidden file input — triggered by the Photo button below */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  onChange={handleImagePick}
+                />
+
                 <Button
                   size="small"
                   startIcon={<ImageIcon />}
-                  onClick={() => setShowImageInput((p) => !p)}
+                  onClick={() => fileInputRef.current?.click()}
                   sx={{ textTransform: 'none', color: 'text.secondary' }}
                 >
                   Photo
                 </Button>
+
                 <Button
                   variant="contained"
                   size="small"
